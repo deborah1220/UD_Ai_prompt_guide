@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI 시안 만들기 · 딱 3단계</title>
+<style>
+  :root{
+    --ink:#24324a; --ink2:#5c6575; --ink3:#8a93a3;
+    --paper:#fffaf4; --line:#edf0f5;
+    --blue:#3d73bf; --blue-s:#eef5ff; --blue-b:#cfe0fb;
+    --c1:#6aa8ff; --c2:#7fd8c2; --c3:#ffd76a;
+    --gap:1.1vh;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  @supports (height:100dvh){ html,body{height:100dvh;} }
+  body{
+    background:
+      radial-gradient(circle at 18% 0%, #fff0f5 0 10%, transparent 32%),
+      radial-gradient(circle at 92% 6%, #edf8ff 0 12%, transparent 34%),
+      var(--paper);
+    color:var(--ink); font-weight:600; overflow:hidden;
+    font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
+    display:flex; flex-direction:column; gap:var(--gap);
+    padding:2vh clamp(14px,2.2vw,40px) 1.6vh;
+  }
+
+  /* ── 머리 ── */
+  .top{display:flex; align-items:flex-end; gap:clamp(10px,1.4vw,22px); flex:0 0 auto;}
+  .top h1{font-size:clamp(22px,5.4vh,54px); font-weight:900; letter-spacing:-.04em; line-height:1;}
+  .top .sub{font-size:clamp(13px,3vh,30px); font-weight:900; color:var(--blue); letter-spacing:-.02em;}
+  .topright{margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; gap:.7vh;}
+  .acct{display:flex; gap:clamp(5px,.6vw,10px);}
+  .chip{display:inline-flex; align-items:center; gap:6px; font-family:inherit; cursor:pointer;
+    background:#fff; border:2px solid var(--blue-b); color:var(--blue);
+    border-radius:999px; padding:.7vh clamp(9px,1vw,17px); font-size:clamp(10px,1.7vh,16px); font-weight:900;}
+  .chip i{font-style:normal; font-size:.78em; color:var(--ink3);}
+  .chip:active{background:var(--blue-s);}
+  .note{text-align:right; font-size:clamp(9.5px,1.7vh,16px); color:var(--ink3); font-weight:700; line-height:1.4;}
+
+  /* ── 단계 ── */
+  .step{display:flex; align-items:center; gap:clamp(8px,1vw,15px); background:#f7f9fc;
+    border-radius:clamp(10px,1.6vh,18px); padding:1.1vh clamp(10px,1.3vw,20px); flex:0 0 auto;}
+  .step .n{width:clamp(22px,3.6vh,38px); height:clamp(22px,3.6vh,38px); border-radius:30%;
+    display:grid; place-items:center; color:#fff; font-size:clamp(12px,2.2vh,22px); font-weight:900; flex:none;
+    box-shadow:inset 0 -3px 0 rgba(0,0,0,.09);}
+  .step b{font-size:clamp(12px,2.5vh,25px); font-weight:900; letter-spacing:-.02em; line-height:1.2;}
+  .s1 .n{background:var(--c1);} .s2 .n{background:var(--c2);} .s3 .n{background:var(--c3);}
+
+  /* ── 프롬프트 ── */
+  .prompt{background:#fffbef; border:3px solid #f2d894; border-radius:clamp(12px,2vh,22px);
+    padding:1.5vh clamp(12px,1.8vw,28px) 1.2vh; flex:0 1 auto; min-height:0;}
+  .prompt p{font-size:clamp(12px,2.5vh,23px); font-weight:900; line-height:1.42; letter-spacing:-.02em;}
+  .prompt .blank{color:var(--blue);}
+  .exrow{display:flex; align-items:center; gap:clamp(8px,1vw,16px); margin-top:.8vh;}
+  .ex{flex:1; font-size:clamp(9.5px,1.65vh,16px); color:var(--ink3); font-weight:700; line-height:1.4; min-width:0;}
+  .ex2{display:inline-block; margin-top:.4vh; color:#b07a2a; font-weight:900;}
+  .copy{flex:none; font-family:inherit; cursor:pointer; background:var(--blue); color:#fff; border:none;
+    border-radius:999px; padding:1vh clamp(11px,1.3vw,22px); font-size:clamp(11px,1.9vh,19px); font-weight:900;
+    letter-spacing:-.02em; white-space:nowrap;}
+  .copy:active{transform:translateY(1px);}
+
+  /* ── 쉬운 버전 ── */
+  .alt{display:flex; align-items:center; gap:clamp(8px,1vw,16px); background:#f3f8f4; border:3px solid #cfe6d6;
+    border-radius:clamp(10px,1.6vh,18px); padding:1vh clamp(11px,1.4vw,20px); flex:0 0 auto;}
+  .alt .altxt{flex:1; font-size:clamp(10px,1.85vh,18px); font-weight:700; color:#2f5c45; line-height:1.4; min-width:0;}
+  .alt .hl{color:#1f7a4d; font-weight:900;}
+  .alt-copy{background:#2f8f5b;}
+
+  /* ── 각도 ── */
+  .views{display:flex; gap:clamp(5px,.8vw,12px); flex:0 0 auto;}
+  .views span{flex:1; text-align:center; background:var(--blue-s); border:3px solid var(--blue-b);
+    color:var(--blue); border-radius:clamp(8px,1.4vh,16px); padding:1vh 4px;
+    font-size:clamp(10px,2vh,21px); font-weight:900; letter-spacing:-.03em; white-space:nowrap;}
+
+  /* ── 아래 ── */
+  .bottom{display:flex; gap:clamp(7px,.9vw,14px); flex:1 1 auto; min-height:0; margin-top:auto;}
+  .lens{flex:1.9; display:flex; align-items:center; gap:clamp(9px,1.2vw,18px); background:var(--blue-s);
+    border:3px solid var(--blue-b); border-radius:clamp(10px,1.8vh,20px); padding:1vh clamp(11px,1.4vw,20px); min-width:0;}
+  .lens .qr{width:clamp(50px,11vh,104px); height:clamp(50px,11vh,104px); flex:none; background:#fff;
+    border-radius:8px; padding:4px;}
+  .lens .qr img{width:100%; height:100%; display:block;}
+  .lens .txt{min-width:0;}
+  .lens b{display:block; font-size:clamp(12px,2.3vh,24px); font-weight:900; color:var(--blue); letter-spacing:-.02em;}
+  .lens p{font-size:clamp(9.5px,1.65vh,16px); color:#3f5c8c; font-weight:700; margin:.3vh 0 .7vh; line-height:1.4;}
+  .lens a{display:inline-flex; align-items:center; gap:6px; background:#fff; border:3px solid var(--blue-b);
+    color:var(--blue); border-radius:999px; padding:.6vh clamp(9px,1vw,16px);
+    font-size:clamp(10px,1.8vh,18px); font-weight:900; text-decoration:none;}
+  .warn{flex:1; display:flex; flex-direction:column; gap:clamp(5px,.8vh,10px); min-width:0;}
+  .warn div{flex:1; background:#fff3f1; border:3px solid #ffc9c2; border-radius:clamp(9px,1.5vh,17px);
+    padding:.6vh clamp(9px,1vw,15px); display:flex; flex-direction:column; justify-content:center; min-height:0;}
+  .warn b{font-size:clamp(11px,2vh,21px); font-weight:900; color:#c0564c; letter-spacing:-.02em; line-height:1.2;}
+  .warn span{font-size:clamp(9px,1.5vh,15px); color:#8a6560; font-weight:700; margin-top:.2vh; line-height:1.3;}
+
+  .foot{display:flex; justify-content:space-between; align-items:center; flex:0 0 auto;
+    font-size:clamp(9px,1.5vh,15px); color:var(--ink3); font-weight:700;
+    border-top:2px solid var(--line); padding-top:.8vh;}
+  .foot b{color:var(--ink); font-weight:900;}
+
+  .toast{position:fixed; left:50%; bottom:4vh; transform:translateX(-50%); background:var(--ink); color:#fff;
+    padding:1.2vh 3vh; border-radius:999px; font-size:clamp(12px,2vh,20px); font-weight:900;
+    opacity:0; pointer-events:none; transition:opacity .2s; z-index:99;}
+  .toast.on{opacity:1;}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>AI 시안 만들기</h1>
+  <span class="sub">딱 3단계</span>
+  <div class="topright">
+    <div class="acct">
+      <button class="chip" data-copy="26학번@i-shinil.or.kr"><i>계정</i>26학번@i-shinil.or.kr</button>
+      <button class="chip" data-copy="shinil123@"><i>비번</i>shinil123@</button>
+    </div>
+    <div class="note">내 스케치를 먼저 그린 다음에 하기 · AI 그림은 참고용, 평가는 내가 그린 스케치</div>
+  </div>
+</div>
+
+<div class="step s1"><span class="n">1</span><b>스케치 사진 찍어서 AI에 올리기</b></div>
+<div class="step s2"><span class="n">2</span><b>아래 문장 복사해서 붙여넣기 — 빈칸은 내 디자인으로 바꾸기</b></div>
+
+<div class="prompt">
+  <p>올린 사진은 내가 연필로 그린 <span class="blank">유니버설 디자인</span> 제품 스케치야.
+  선의 위치와 비례를 그대로 두고, 깔끔한 제품 디자인 시안으로만 다듬어 줘.<br>
+  이건 <span class="blank">[ 누구 ]</span>를 위한 <span class="blank">[ 무엇 ]</span>이고,
+  <span class="blank">[ 기능·특징 ]</span>이 있어.
+  <span class="blank">[ 재질·색 ]</span>, <span class="blank">[ 앞면 ]</span>에서 본 모습.
+  흰 배경에 제품 하나만. 없던 부품을 만들거나 모양을 예쁘게 바꾸지 마. 글자·사람·로고는 넣지 마.</p>
+  <div class="exrow">
+    <div class="ex">예)　[ 손에 힘이 약한 사람 ]　[ 문손잡이 ]　[ 팔꿈치로 눌러 여는 레버 · 미끄럼 방지 홈 ]　[ 무광 나무 + 검은 고무 ]　[ 앞면 ]
+      <span class="ex2">모양이 바뀌어 나오면 → “내 스케치 선을 그대로 따라 그려. 새로 디자인하지 마.” 한 줄 더 보내기</span></div>
+    <button class="copy" id="copyPrompt">프롬프트 복사</button>
+  </div>
+</div>
+
+<div class="alt">
+  <div class="altxt"><b>선이 삐뚤어도 괜찮아.</b> 스케치가 흐리거나 자신 없으면 이걸 대신 쓰기 —
+  형태는 대충만 참고하고 <span class="hl">기능이 보이게</span> 그려 달라는 방식이야.</div>
+  <button class="copy alt-copy" id="copyPromptB">쉬운 버전 복사</button>
+</div>
+
+<div class="step s3"><span class="n">3</span><b>“앞면” 자리만 바꿔서 한 번씩 더 요청하기</b></div>
+<div class="views">
+  <span>앞면</span><span>측면</span><span>뒷면</span><span>윗면</span>
+  <span>손잡이 확대</span><span>쓰는 모습</span>
+</div>
+
+<div class="bottom">
+  <div class="lens">
+    <div class="qr"><img alt="구글 렌즈 QR" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQ4AAAEOCAIAAAD3027yAAAEuElEQVR4nO3dwW3cMBRAwThIK6kgZaTelJEKUoxy9oX7AJomJc9cDa+0az/w8JfU23Vd34BXvu++AbgHqUAiFUikAolUIJEKJFKBRCqQSAWSH+Mf//z1+3Pu49P8+/tn8NPx+x3/7oyZ6555z3c0/qysKpBIBRKpQCIVSKQCiVQgkQokUoFEKpC8mNaPrZsEz9g1RV533XXz+HWv/Lz/DasKJFKBRCqQSAUSqUAiFUikAolUIJEKJFPT+rF10+szJ8EzZnbPr7vuOnd8R1YVSKQCiVQgkQokUoFEKpBIBRKpQCIVSBZO6+9o3W7y8Xz6zPMAnvetiBlWFUikAolUIJEKJFKBRCqQSAUSqUAiFUhM69+ZmZqPZ9tnPvOezqoCiVQgkQokUoFEKpBIBRKpQCIVSKQCycJp/R3nxLv2x+/6rL7adWdYVSCRCiRSgUQqkEgFEqlAIhVIpAKJVCCZmtbvOr99nZl96rt+d8a66z7vf8OqAolUIJEKJFKBRCqQSAUSqUAiFUikAsnbdV277+Eh1u2tX/c9gLE77oBfx6oCiVQgkQokUoFEKpBIBRKpQCIVSKQCyYtpvb3XH+XMyfeuWf6u7x+Mja9rVYFEKpBIBRKpQCIVSKQCiVQgkQokUoFkam/9mbvJx77aPY/tOmN/l5n3a1WBRCqQSAUSqUAiFUikAolUIJEKJFKB5MVz68/cAz227p7XvaNd3yFY91mdeT7/zD1bVSCRCiRSgUQqkEgFEqlAIhVIpAKJVCB5Ma3fZdec+My95uvu6sz3u+uVx6wqkEgFEqlAIhVIpAKJVCCRCiRSgUQqkLyY1p/5tPXnzfLXOfP97vokZyb9VhVIpAKJVCCRCiRSgUQqkEgFEqlAIhVIFp6EP2PmuuvOYD/z/PZddp1Iv+uVrSqQSAUSqUAiFUikAolUIJEKJFKBRCqQTJ2Ef+YU+cznqZ856T9z5/2uU/Q9tx4+gFQgkQokUoFEKpBIBRKpQCIVSKQCydS0/syT0u94yvqZZ+yf+S2BsXWvbFWBRCqQSAUSqUAiFUikAolUIJEKJFKBZGpaP3bmzPV53wO44xn762b5TsKHzaQCiVQgkQokUoFEKpBIBRKpQCIVSF5M68+cbZ85NT/TVzvrfh2rCiRSgUQqkEgFEqlAIhVIpAKJVCCRCiQvpvV3nKqOPe/M+V12Tfp3nc9vVYFEKpBIBRKpQCIVSKQCiVQgkQokUoHk0OfWz9j1DYNdJ9Kve2rAzHV3cRI+bCYVSKQCiVQgkQokUoFEKpBIBRKpQHLoc+vHds2Jz7zuus/5eScr2FsPy0kFEqlAIhVIpAKJVCCRCiRSgUQqkCyc1n81M5PgdfP4M3f835FVBRKpQCIVSKQCiVQgkQokUoFEKpBIBRLT+nfO3MW+bvJ95nXPZFWBRCqQSAUSqUAiFUikAolUIJEKJFKBZOG0/nm7q8dm3u+6HfC79vTPOPOurCqQSAUSqUAiFUikAolUIJEKJFKBRCqQTE3r77hDeux5e83veJr9ur/CzKdhVYFEKpBIBRKpQCIVSKQCiVQgkQokUoHk7bqu3fcAN2BVgUQqkEgFEqlAIhVIpAKJVCCRCiRSgeQ/BQV7cqWxTDkAAAAASUVORK5CYII="></div>
+    <div class="txt">
+      <b>이미 있는 제품인지 확인하기</b>
+      <p>내 스케치 사진을 올리면 비슷한 제품이 바로 나와요.
+      AI한테 “이거 이미 있어?”라고 묻지 마세요. 없는 것도 있다고 지어냅니다.</p>
+      <a href="https://lens.google.com" target="_blank" rel="noopener">lens.google.com ›</a>
+    </div>
+  </div>
+  <div class="warn">
+    <div><b>브랜드 이름 쓰지 마</b><span>실제 상표는 넣지 않기</span></div>
+    <div><b>AI 그림 그대로 내지 마</b><span>뭘 가져오고 뭘 바꿀지 한 줄 적기</span></div>
+  </div>
+</div>
+
+<div class="foot">
+  <span>유니버설 디자인 아이디어 스케치 · AI 참고 시안</span>
+  <b>신일비즈니스고등학교　최재연T</b>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var PROMPT_TEXT = [
+  "올린 사진은 내가 연필로 그린 유니버설 디자인 제품 스케치야.",
+  "선의 위치와 비례를 그대로 두고, 깔끔한 제품 디자인 시안으로만 다듬어 줘.",
+  "이건 [누구]를 위한 [무엇]이고, [기능·특징]이 있어.",
+  "재질과 색은 [재질·색], [앞면]에서 본 모습으로 보여 줘.",
+  "흰 배경에 제품 하나만, 부드러운 그림자.",
+  "없던 부품을 새로 만들거나 모양을 예쁘게 바꾸지 마. 글자, 사람, 로고는 넣지 마."
+].join("\n");
+
+var PROMPT_TEXT_B = [
+  "올린 사진은 내가 대충 그린 유니버설 디자인 아이디어 스케치야.",
+  "선이 정확하지 않으니 전체 모양과 부품 위치만 참고해 줘.",
+  "이건 [누구]를 위한 [무엇]이고, [기능·특징]이 있어.",
+  "그 기능이 한눈에 보이게, 흰 배경에 제품 하나만 그려 줘.",
+  "내가 말하지 않은 기능은 새로 넣지 마. 글자, 사람, 로고는 넣지 마."
+].join("\n");
+
+(function(){
+  var toastEl=document.getElementById("toast"), tid;
+  function toast(m){
+    toastEl.textContent=m; toastEl.classList.add("on");
+    clearTimeout(tid); tid=setTimeout(function(){ toastEl.classList.remove("on"); },1800);
+  }
+  function copyText(text){
+    var ta=document.createElement("textarea");
+    ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0,99999);
+    var ok=false;
+    try{ ok=document.execCommand("copy"); }catch(e){}
+    document.body.removeChild(ta);
+    if(ok){ toast("복사했어요"); return; }
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(text).then(
+        function(){ toast("복사했어요"); },
+        function(){ toast("길게 눌러 직접 복사하세요"); });
+    }else{ toast("길게 눌러 직접 복사하세요"); }
+  }
+  document.getElementById("copyPrompt").addEventListener("click",function(){ copyText(PROMPT_TEXT); });
+  document.getElementById("copyPromptB").addEventListener("click",function(){ copyText(PROMPT_TEXT_B); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-copy]"),function(b){
+    b.addEventListener("click",function(){ copyText(b.getAttribute("data-copy")); });
+  });
+})();
+</script>
+</body>
+</html>
